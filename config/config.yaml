@@ -1,0 +1,19 @@
+cluster:
+  mkdir -p logs/{rule} &&
+  sbatch
+    -n {threads}
+    --parsable
+    --mem-per-cpu={resources.mem_mb}M
+    --job-name=smk-{rule}-{wildcards}
+    --output=logs/{rule}/{rule}-{wildcards}-%j.out
+    --error=logs/{rule}/{rule}-{wildcards}-%j.error
+    --mail-user USER_EMAIL
+    --mail-type FAIL
+    --time=96:00:00
+jobs: 40
+printshellcmds: True
+cluster-cancel: "scancel"
+cluster-cancel-nargs: 100
+latency-wait: 60
+use-conda: True
+conda-prefix: "/home/mosbrugert/miniconda3/envs/"

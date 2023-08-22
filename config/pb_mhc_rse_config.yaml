@@ -1,0 +1,4 @@
+email: "USER_EMAIL"
+read_cap: 600000
+ref_fasta: "hg38_PG_1K.fa.gz"
+ref_regions: "hg38_MHC_regions.bed" 

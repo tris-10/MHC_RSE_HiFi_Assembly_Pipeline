@@ -1,0 +1,1 @@
+#Add HiFi fastq files to this directory.  See github readme for more details

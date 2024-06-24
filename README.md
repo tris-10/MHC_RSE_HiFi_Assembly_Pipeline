@@ -25,25 +25,34 @@ processed with a modified pipeline.
    See the config.yaml file in the `cluster_config` directory for an example of a Slurm setup file.
 1. Open `config/pb_mhc_rse_config.yaml` and change the read cap, email and reference name settings.
 1. Create, compress and index reference sequences and put them into the resource directory:
-   * `resources/hg38_no_mhc.fasta.gz`: Hg38 with MHC region masked.
-   * `resources/hg38_PG_1K.fasta.gz`. Hg38 with a panel of MHC sequences.  The publication uses Pangenome asssemblies, 1KG assemblies and the 7 alternative MHC haplotypes included hg38.
-   * `resources/hg38_MHC_chr6.fasta`.  Hg38 chromosome 6 sequence.
+   * `resources/hg38_no_mhc.fa.gz`: Hg38 with MHC region masked.
+   * `resources/hg38_PG_1K.fa.gz`. Hg38 with a panel of MHC sequences.  The publication uses Pangenome asssemblies, 1KG assemblies and the 7 alternative MHC haplotypes included hg38.
+   * `resources/hg38_chr6.fa`.  Hg38 chromosome 6 sequence.
    * `hg38_MHC_regions.bed`. Bed file listing the coordinates of the MHC sequences in `resources/hg38_PG_1K.fasta.gz`.
       
-## How to Run
+## How to Run: Haplotype Estimation
 
 1. Copy compressed RSE HiFi fastq sequences in the `fastq` directory. The file should
    be named `SAMPLE.fastq.gz`. `SAMPLE` should be a sample-specific identifier that will used to prefix all output files.
-1. Copy phased microarray data into the `microarray` directory.  Three files are expected:
-    - fasta file with 60bp sequence upstream of microarray SNP. The file should be named
-      `SAMPLE_front.fasta`.
-    - fasta file with 60bp sequence downstream of microarray SNP. The file should be named
-      `SAMPLE_back.fasta`
+1. Navigate to workflow directory, rename `Snakemake_est` to `Snakemake` and launch the pipeline: `snakemake --profile PROFILE`.
+   `PROFILE` should match the directory name in step 4 of the installation.
+1. The pipeline will run for several hours, so consider launching in a screen session.
+1. The assemblies will be located in the `results/SAMPLE_final_contigs/` directory on successful
+   completion of the pipeline. There will be one fasta file per haplotype. 
+
+
+## How to Run: Trio Phased Microarray
+
+1. Copy compressed RSE HiFi fastq sequences in the `fastq` directory. The file should
+   be named `SAMPLE.fastq.gz`. `SAMPLE` should be a sample-specific identifier that will used to prefix all output files.
+1. Copy phased microarray data into the `microarray` directory.  
     - Table with microarray probe information.  The file should have five columns separated
       with tabs: SNP_ID, chromosome, position, hap1 base, hap2 base. Phasing
       can be done with Trios or predicted using a tool like ShapeIT. File should be namd
       `SAMPLE_table.txt`
-1. Navigate to workflow directory and launch the pipeline: `snakemake --profile PROFILE`.
+    - The pipeline currently supports the Infinium Omni2-5-8 array. If alternative arrays are used, 
+      the `Infinium` resources files must be changed in the `resource` directory.
+1. Navigate to workflow directory, rename `Snakemake_trio` to `Snakemake` and launch the pipeline: `snakemake --profile PROFILE`.
    `PROFILE` should match the directory name in step 4 of the installation.
 1. The pipeline will run for several hours, so consider launching in a screen session.
 1. The assemblies will be located in the `results/SAMPLE_final_contigs/` directory on successful

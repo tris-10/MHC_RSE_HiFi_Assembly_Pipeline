@@ -28,7 +28,10 @@ processed with a modified pipeline.
    * `resources/hg38_no_mhc.fa.gz`: Hg38 with MHC region masked.
    * `resources/hg38_PG_1K.fa.gz`. Hg38 with a panel of MHC sequences.  The publication uses Pangenome asssemblies, 1KG assemblies and the 7 alternative MHC haplotypes included hg38.
    * `resources/hg38_chr6.fa`.  Hg38 chromosome 6 sequence.
-   * `hg38_MHC_regions.bed`. Bed file listing the coordinates of the MHC sequences in `resources/hg38_PG_1K.fasta.gz`.
+   * `resources/hg38_MHC_regions.bed`. Bed file listing the coordinates of the MHC sequences in `resources/hg38_PG_1K.fasta.gz`.
+1. If using haplotype estimation, two additional files are required.
+   * `resources/1kGP_high_coverage_Illumina.chr6.filtered.SNV_INDEL_SV_phased_panel.bcf`. Phased SNV calls from 1KG or some other source.
+   * `resources/chr6.b38.gmap.gz`. SHAPEIT4 maps: (https://github.com/odelaneau/shapeit4/tree/master/maps)
       
 ## How to Run: Haplotype Estimation
 

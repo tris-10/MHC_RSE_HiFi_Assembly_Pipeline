@@ -10,7 +10,6 @@ dependencies:
   - amply=0.1.6=pyhd8ed1ab_0
   - atk-1.0=2.38.0=hd4edc92_1
   - attr=2.5.1=h166bdaf_1
-  - bbmap=39.01=h92535d8_1
   - bcftools=1.16=haef29d1_2
   - bedtools=2.30.0=h468198e_3
   - biopython=1.81=py38h1de0b5d_0

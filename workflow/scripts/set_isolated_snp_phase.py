@@ -74,13 +74,13 @@ def identify_isolated_hets(vcf_file, min_dist):
 
         for var in ipv:
             sample_data = var.samples[samples[0]]
-            if not sample_data.phased and sample_data['GT'][0] == 0 and sample_data['GT'][1] == 1:
-                if var.pos - prev_pos >= min_dist or prev_chrom != var.chrom:
-                    pot_iso = '{0}:{1}'.format(var.chrom, var.pos)
             if pot_iso is not None:
                 if var.pos - prev_pos >= min_dist or prev_chrom != var.chrom:
                     isolated.add(pot_iso)
                 pot_iso = None
+            if not sample_data.phased and sample_data['GT'][0] == 0 and sample_data['GT'][1] == 1:
+                if var.pos - prev_pos >= min_dist or prev_chrom != var.chrom:
+                    pot_iso = '{0}:{1}'.format(var.chrom, var.pos)
             prev_pos = var.pos
             prev_chrom = var.chrom
         if pot_iso is not None:
@@ -93,4 +93,4 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("user interrupted, eiting")
+        print("user interrupted, exiting")

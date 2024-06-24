@@ -16,4 +16,4 @@ cluster-cancel: "scancel"
 cluster-cancel-nargs: 100
 latency-wait: 60
 use-conda: True
-conda-prefix: "/home/mosbrugert/miniconda3/envs/"
+conda-prefix: "/home/USERNAME/miniconda3/envs/"

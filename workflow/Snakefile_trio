@@ -15,7 +15,7 @@ for sample in wc.sample:
 rule all:
     input:
        expand("../results/{sample}_final_contigs/{sample}_{hap}_final_contigs.fasta", sample=SAMPLES, hap=HAPS)
-       
+
 rule downsample_reads:
     input:
         "../fastq/{sample}.fastq.gz"
@@ -157,7 +157,7 @@ rule filter_collpased_contigs:
         mem_mb=2000
     shell:
     	"""
-    	python scripts/filter_diploid_contigs.py {params.canu_path} {params.canu_prefix} minimap2 ../resources/hg38_chr6.fa.gz {params.hq_contigs} -t {threads}
+    	python scripts/filter_diploid_contigs.py {params.canu_path} {params.canu_prefix} minimap2 ../resources/hg38_chr6.fa {params.hq_contigs} -t {threads}
     	python scripts/filter_contigs_by_overlap.py {params.hq_contigs} {output} minimap2 -t {threads}
         samtools faidx {output}
         """
@@ -296,6 +296,7 @@ rule haplotag_reads:
 rule align_probes_to_collapsed:
     input:
         contigs="../results/{sample}_canu/{sample}_final.contigs.fasta", 
+        shapeit="../microarray/{sample}_table.txt"
     output:
         front_align="../results/{sample}_bin/{sample}_front.bam",
         back_align="../results/{sample}_bin/{sample}_back.bam"
@@ -307,8 +308,8 @@ rule align_probes_to_collapsed:
     shell:
         """
         bwa index {input.contigs}
-        bwa mem {input.contigs} -a ../microarray/{wildcards.sample}_front.fasta | samtools sort - | scripts/extract_het_probe_alignments.py ../microarray/{wildcards.sample}_table.txt {output.front_align}
-        bwa mem {input.contigs} -a ../microarray/{wildcards.sample}_back.fasta | samtools sort - | scripts/extract_het_probe_alignments.py ../microarray/{wildcards.sample}_table.txt {output.back_align}
+        bwa mem {input.contigs} -a ../resources/Infinium_front.fasta | samtools sort - | scripts/extract_het_probe_alignments.py {input.shapeit} {output.front_align}
+        bwa mem {input.contigs} -a ../resources/Infinium_back.fasta | samtools sort - | scripts/extract_het_probe_alignments.py {input.shapeit} {output.back_align}
         """
 
 rule partition_reads:
@@ -320,6 +321,7 @@ rule partition_reads:
         variants="../results/{sample}_bin/{sample}_final.vcf.gz",
         regions="../results/{sample}_bin/{sample}_phase.gtf",
         contigs="../results/{sample}_canu/{sample}_final.contigs.fasta",
+        shapeit="../microarray/{sample}_table.txt"
     output:
         hap1_reads="../results/{sample}_hap1_asm_r1/{sample}_hap1.fasta",
         hap2_reads="../results/{sample}_hap2_asm_r1/{sample}_hap2.fasta"
@@ -332,7 +334,7 @@ rule partition_reads:
         mem_mb=4000
     shell:
         """
-        python scripts/partition_haplotypes.py {input.contigs} {input.align} {input.prim} ../microarray/{wildcards.sample}_table.txt {input.variants} {input.regions} {input.front} {input.back} {params.output_dir}
+        scripts/partition_haplotypes.py {input.contigs} {input.align} {input.prim} {input.shapeit} {input.variants} {input.regions} {input.front} {input.back} {params.output_dir}
         cat {params.output_dir}_hap1_only.fasta {params.output_dir}_unknown.fasta > {output.hap1_reads}
         cat {params.output_dir}_hap2_only.fasta {params.output_dir}_unknown.fasta > {output.hap2_reads}
         """
@@ -443,8 +445,6 @@ rule combine_edge_and_capped:
        edge_reads="../results/{sample}_{hap}_asm_r1/{sample}_{hap}_edge_split.fasta"
     output:
        "../results/{sample}_{hap}_asm_r1/{sample}_{hap}_asm_r1_reads.fasta"
-    params:
-       temp_reads="../results/{sample}_{hap}_asm_r1/{sample}_{hap}_temp.fasta"
     conda:
         "envs/pb_mhc_rse_main.yaml"
     threads: 1
@@ -452,9 +452,7 @@ rule combine_edge_and_capped:
         mem_mb=8000
     shell:
         """
-        python scripts/replace_reads.py {input.capped_reads} {input.edge_reads} {params.temp_reads}
-        sortbyname.sh in={params.temp_reads} out={output} length descending overwrite=true
-        rm {params.temp_reads}
+        python scripts/replace_reads.py {input.capped_reads} {input.edge_reads} {output}
         """
 
 rule create_asm_r1:
@@ -611,9 +609,8 @@ rule split_patch_reads_n2:
         """
         python scripts/split_chimeric_reads.py {input.align} {input.support_reads} {input.kmer} {params.output_dir} {params.output_prefix}
         python scripts/extract_split_target_reads.py {params.support_temp} {input.patch_reads} {params.patch_temp}
-        python scripts/rename_patch_reads.py {params.patch_temp} {params.patch_rename}
-        sortbyname.sh in={params.patch_rename} out={output.patch_reads} overwrite=true    
-        rm {params.support_temp} {params.patch_temp} {params.patch_rename}
+        python scripts/rename_patch_reads.py {params.patch_temp} {output.patch_reads}
+        rm {params.support_temp} {params.patch_temp}
         """
         
 rule replace_with_patched:
@@ -696,4 +693,3 @@ onsuccess:
 onerror:
     print("An error occurred")
     shell("mail -s 'an error occurred' {config[email]} < {log}")
-

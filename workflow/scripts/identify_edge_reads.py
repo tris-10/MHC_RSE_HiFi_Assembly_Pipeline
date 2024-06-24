@@ -109,27 +109,27 @@ def parse_contig_edge_data(align_file, edge_dist, support_dist, min_length, min_
             edge_name = '{0}_start_{1}'.format(contig_name, contig_length)
             edge_dict[edge_name] = ContigEdge(edge_name)
             if edge_name in custom_edge_dist_dict:
-                load_edge_reads(ip_bam, contig_name, 0, custom_edge_dist_dict[edge_name], edge_dict, edge_name,
+                load_edge_reads(ip_bam, contig_name, 0, min(custom_edge_dist_dict[edge_name], contig_length), edge_dict, edge_name,
                                 min_align_score)
-                load_support_reads(ip_bam, contig_name, 0, custom_edge_dist_dict[edge_name] + support_dist, edge_dict,
+                load_support_reads(ip_bam, contig_name, 0, min(custom_edge_dist_dict[edge_name] + support_dist, contig_length), edge_dict,
                                    edge_name, min_align_score)
             else:
-                load_edge_reads(ip_bam, contig_name, 0, edge_dist, edge_dict, edge_name, min_align_score)
-                load_support_reads(ip_bam, contig_name, 0, edge_dist + support_dist, edge_dict, edge_name,
+                load_edge_reads(ip_bam, contig_name, 0, min(edge_dist, contig_length), edge_dict, edge_name, min_align_score)
+                load_support_reads(ip_bam, contig_name, 0, min(edge_dist + support_dist, contig_length), edge_dict, edge_name,
                                    min_align_score)
 
             # load contig end information
             edge_name = '{0}_end_{1}'.format(contig_name, contig_length)
             edge_dict[edge_name] = ContigEdge(edge_name)
             if edge_name in custom_edge_dist_dict:
-                load_edge_reads(ip_bam, contig_name, contig_length - custom_edge_dist_dict[edge_name], contig_length,
+                load_edge_reads(ip_bam, contig_name, max(contig_length - custom_edge_dist_dict[edge_name], 0), contig_length,
                                 edge_dict, edge_name, min_align_score)
-                load_support_reads(ip_bam, contig_name, contig_length - (custom_edge_dist_dict[edge_name]+support_dist),
+                load_support_reads(ip_bam, contig_name, max(contig_length - (custom_edge_dist_dict[edge_name]+support_dist), 0),
                                    contig_length, edge_dict, edge_name, min_align_score)
             else:
-                load_edge_reads(ip_bam, contig_name, contig_length - edge_dist, contig_length, edge_dict, edge_name,
+                load_edge_reads(ip_bam, contig_name, max(contig_length - edge_dist, contig_length), contig_length, edge_dict, edge_name,
                                 min_align_score)
-                load_support_reads(ip_bam, contig_name, contig_length - (edge_dist + support_dist), contig_length,
+                load_support_reads(ip_bam, contig_name, max(contig_length - (edge_dist + support_dist), 0), contig_length,
                                    edge_dict, edge_name, min_align_score)
     return edge_dict
 
